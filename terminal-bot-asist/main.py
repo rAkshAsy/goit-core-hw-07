@@ -6,6 +6,7 @@ def main():
 ///   hello
 ///   add [name] [phone]
 ///   change [name] [old_phone] [new_phone]
+///   delete [name]
 ///   all OR phone [name]
 ///   add-birthday [name] [DD.MM.YYYY]
 ///   show-birthday [name]
@@ -31,6 +32,9 @@ def main():
 
             case 'add':
                 print(ic.add_contact(argument_list, book))
+
+            case 'delete':
+                print(ic.delete_contact(argument_list, book))
 
             case 'all':
                 print(book)

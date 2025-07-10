@@ -83,9 +83,11 @@ class AddressBook(UserDict):
         if key not in self.data:
             self.data[key] = record
     
-    def delete(self, name: str):
+    def delete(self, name: str) -> bool:
         if name in self.data:
             del self.data[name]
+            return True
+        return False
            
     def find(self, name: str):
         search_name = name.casefold()
@@ -96,19 +98,20 @@ class AddressBook(UserDict):
         today = date.today()
 
         for _, contact in self.data.items():
-            user_b_day = contact.birthday.value
-            birthday_this_year = user_b_day.replace(year=today.year).date()
-            if birthday_this_year < today:
-                birthday_this_year = user_b_day.replace(year=today.year+1).date()
-        
-            if 0 <= (birthday_this_year - today).days <= days:
-                if birthday_this_year.weekday() == 5:
-                    birthday_this_year += timedelta(days=2)
-                elif birthday_this_year.weekday() == 6:
-                    birthday_this_year += timedelta(days=1)
+            if contact.birthday:
+                user_b_day = contact.birthday.value
+                birthday_this_year = user_b_day.replace(year=today.year).date()
+                if birthday_this_year < today:
+                    birthday_this_year = user_b_day.replace(year=today.year+1).date()
             
-                congratulation_date_str = birthday_this_year.strftime("%d.%m.%Y")
-                upcoming_birthdays.append({"name": contact.name.value, "congratulation_date": congratulation_date_str})
+                if 0 <= (birthday_this_year - today).days <= days:
+                    if birthday_this_year.weekday() == 5:
+                        birthday_this_year += timedelta(days=2)
+                    elif birthday_this_year.weekday() == 6:
+                        birthday_this_year += timedelta(days=1)
+                
+                    congratulation_date_str = birthday_this_year.strftime("%d.%m.%Y")
+                    upcoming_birthdays.append({"name": contact.name.value, "congratulation_date": congratulation_date_str})
         return upcoming_birthdays
     
     def __str__(self):
@@ -116,7 +119,7 @@ class AddressBook(UserDict):
         result = 'Your AddressBook:' + underline
         if self.data:
             for _, record in self.data.items():
-                result += f'Contact name: {record.name.value}, '
+                result += f'Contact name: {record.name.value.capitalize()}, '
                 if record.birthday:
                     result += f'Birthday: {record.birthday}, '
                 if not record.phones:

@@ -4,7 +4,7 @@ def input_error(func):
         try:
             return func(*args, **kwargs)
         except ValueError:
-            return "Enter the argument for the command"
+            return "Enter corect arguments for the command. You can use 'help' to know all commands."
         except KeyError:
             return "Sorry, this name is already taken. Please, enter another name."
         except IndexError:
@@ -27,9 +27,10 @@ def add_contact(args, book: AddressBook):
     message = "Contact updated."
     if record is None:
         record = Record(name)
+        record.add_phone(phone)
         book.add_record(record)
         message = "Contact added."
-    if phone:
+    else:
         record.add_phone(phone)
     return message
 
@@ -65,6 +66,16 @@ def add_birthday(args: list, book: AddressBook):
     if contact:
         contact.add_birthday(b_day)
         return f'Contact {contact.name} updated. You add birthday: {contact.birthday}'
+    else:
+        raise IndexError()
+
+
+@input_error
+def delete_contact(args, book: AddressBook) -> str:
+    name, *_ = args
+    if book.delete(name):
+        return f'Contact {name.capitalize()} deleted.'
+    raise IndexError()
 
 
 @input_error
@@ -72,23 +83,19 @@ def show_birthday(args: list, book: AddressBook):
     name, *_ = args
     contact = book.find(name)
     if contact:
-        return f'Name: {contact.name}, birthday; {contact.birthday}'
+        return f'Name: {contact.name}, birthday: {contact.birthday}'
     raise IndexError()
 \
 @input_error
 def birthdays(args: list, book: AddressBook):
     result = 'Upcoming birthdays:'
-    if args:  
-        days, *_ = args
-        congrats_list = book.get_upcoming_birthdays(days)
-    else:
-        congrats_list = book.get_upcoming_birthdays()
+    congrats_list = book.get_upcoming_birthdays()
 
-    if congrats_list
+    if congrats_list:
         for cont in congrats_list:
             result += f'\nName: {cont['name']} - {cont['congratulation_date']}'
     else:
-        result = '\nThere`s no birthdays!'
+        result += '\nThere`s no birthdays!'
     return result
 
 
