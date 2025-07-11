@@ -40,8 +40,7 @@ def show_phone(args_list: list, book: AddressBook) -> str:
     name, *_ = args_list
     contact = book.find(name)
     if contact:
-        cont_name = contact.name.value.capitalize()
-        msg = f'Name: {cont_name}'
+        msg = f'Name: {contact.name}'
         if contact.phones:
             p_list = [tel.value for tel in contact.phones]
             msg += f', phones: {', '.join(p_list)}'

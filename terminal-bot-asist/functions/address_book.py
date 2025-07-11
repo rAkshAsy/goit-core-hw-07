@@ -1,3 +1,4 @@
+import re
 from collections import UserDict
 from datetime import date, datetime, timedelta
 
@@ -12,6 +13,9 @@ class Name(Field):
     def __init__(self, value: str):
         super().__init__(value)
         self.value = self.value.casefold()
+    
+    def __str__(self):
+        return self.value.capitalize()
 
 class Phone(Field):
     def __init__(self, value: str):
@@ -22,15 +26,15 @@ class Phone(Field):
 
 class Birthday(Field):
     def __init__(self, value):
+        date_pattern = r'^\d{2}\.\d{2}\.\d{4}$'
         try:
-            birth_date = datetime.strptime(value, "%d.%m.%Y")
-            self.value = birth_date
+            if re.match(date_pattern, value):
+                self.value = value
+            else:
+                raise ValueError()
         except ValueError:
             raise ValueError("Invalid date format. Use DD.MM.YYYY")
-        
-    def __str__(self):
-        return self.value.strftime("%d.%m.%Y")
-        
+                
 
 class Record:
     def __init__(self, name):
@@ -99,7 +103,7 @@ class AddressBook(UserDict):
 
         for _, contact in self.data.items():
             if contact.birthday:
-                user_b_day = contact.birthday.value
+                user_b_day = datetime.strptime(contact.birthday.value, '%d.%m.%Y')
                 birthday_this_year = user_b_day.replace(year=today.year).date()
                 if birthday_this_year < today:
                     birthday_this_year = user_b_day.replace(year=today.year+1).date()
@@ -111,7 +115,7 @@ class AddressBook(UserDict):
                         birthday_this_year += timedelta(days=1)
                 
                     congratulation_date_str = birthday_this_year.strftime("%d.%m.%Y")
-                    upcoming_birthdays.append({"name": contact.name.value, "congratulation_date": congratulation_date_str})
+                    upcoming_birthdays.append({"name": contact.name.value.capitalize(), "congratulation_date": congratulation_date_str})
         return upcoming_birthdays
     
     def __str__(self):
@@ -119,7 +123,7 @@ class AddressBook(UserDict):
         result = 'Your AddressBook:' + underline
         if self.data:
             for _, record in self.data.items():
-                result += f'Contact name: {record.name.value.capitalize()}, '
+                result += f'Contact name: {record.name}, '
                 if record.birthday:
                     result += f'Birthday: {record.birthday}, '
                 if not record.phones:
@@ -136,9 +140,8 @@ if __name__ == "__main__":
 
     book = AddressBook()
 
-
     names = ['Alex', 'Bill', 'Jane', 'Criss', 'Mary']
-    b_days = ['10.07.2000', '08.07.2000', '03.08.1995', '12.07.1980', '17.10.2000']
+    b_days = ['10.07.2000', '08.07.2000', '03.08.1995', '12.07.1980', '17.07.2000']
     for name, b_day in zip(names, b_days):
         rec = Record(name)
         rec.add_birthday(b_day)
@@ -147,55 +150,3 @@ if __name__ == "__main__":
     print('###'*40)
     print(book.get_upcoming_birthdays())
     print('###'*40)
-    print(book.get_upcoming_birthdays(days=30))
-    print('###'*40)
-    print(book.get_upcoming_birthdays(days=120))
-    print('###'*40)
-
-    
-'''
-# Create first Record object
-
-    rob_rec = Record('roBert')
-    # rob_rec.add_phone('955546000')
-    rob_rec.add_phone('0955546000')
-
-# Create second Record object
-
-    name_rec = Record('NaMe 1')
-    name_rec.add_phone('0887009090')
-    name_rec.add_phone('+380939585547')
-    name_rec.add_phone('80939585547')
-
-    name_rec.edit_phone('80939585547', '0887003030')
-
-    name_rec.remove_phone('0887003030') # Remove phone numder
-    name_rec.remove_phone('0887003000') # Return None and do nothing
-
-    print(rob_rec, name_rec, sep='\n') # Test method Record.__str__()
-    print('###'*20)
-
-# Addind Records to the UserDic
-
-    book.add_record(rob_rec)
-    book.add_record(name_rec)
-    
-    print(book)
-
-# Change phone number
-
-    rob_rec.edit_phone('1234567890000', '0951002030') # Corectly work
-    print(rob_rec)
-
-# Exception catching
-
-    try:
-        rob_rec.edit_phone('INCORRECT PHONE', '+380959585444')
-    except ValueError as e:
-        print(e)
-
-    try:
-        rob_rec.edit_phone('0951002030', '00')
-    except ValueError as e:
-        print(e)
-'''
