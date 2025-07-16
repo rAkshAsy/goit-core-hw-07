@@ -26,18 +26,15 @@ class Phone(Field):
 
 class Birthday(Field):
     def __init__(self, value):
-        date_pattern = r'^\d{2}\.\d{2}\.\d{4}$'
         try:
-            if re.match(date_pattern, value):
+            if datetime.strptime(value, '%d.%m.%Y'):
                 self.value = value
-            else:
-                raise ValueError()
         except ValueError:
             raise ValueError("Invalid date format. Use DD.MM.YYYY")
                 
 
 class Record:
-    def __init__(self, name):
+    def __init__(self, name: str):
         self.name = Name(name)
         self.phones = []
         self.birthday = None
@@ -141,12 +138,12 @@ if __name__ == "__main__":
     book = AddressBook()
 
     names = ['Alex', 'Bill', 'Jane', 'Criss', 'Mary']
-    b_days = ['10.07.2000', '08.07.2000', '03.08.1995', '12.07.1980', '17.07.2000']
+    b_days = ['10.07.2000', '08.07.2000', '03.08.1995', '12.11.1980', '17.07.2000']
     for name, b_day in zip(names, b_days):
         rec = Record(name)
         rec.add_birthday(b_day)
         book.add_record(rec)
 
     print('###'*40)
-    print(book.get_upcoming_birthdays())
+    print(book)
     print('###'*40)
